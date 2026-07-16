@@ -9,27 +9,38 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Pull Juice Shop Image') {
             steps {
-                sh 'docker build -t juice-shop .'
+                sh 'docker pull bkimminich/juice-shop'
             }
         }
 
-        stage('Run Container') {
+        stage('Remove Old Container') {
             steps {
-                sh 'docker run -d --name juice-shop -p 3000:3000 juice-shop'
+                sh 'docker rm -f juice-shop || true'
+            }
+        }
+
+        stage('Run Juice Shop') {
+            steps {
+                sh 'docker run -d --name juice-shop -p 3000:3000 bkimminich/juice-shop'
             }
         }
 
         stage('Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '--scan .', odcInstallation: 'OWASP'
+                dependencyCheck(
+                    odcInstallation: 'OWASP',
+                    additionalArguments: '--scan . --format XML'
+                )
             }
         }
 
         stage('Publish Report') {
             steps {
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                dependencyCheckPublisher(
+                    pattern: '**/dependency-check-report.xml'
+                )
             }
         }
     }
