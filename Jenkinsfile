@@ -31,7 +31,8 @@ pipeline {
             steps {
                 dependencyCheck(
                     odcInstallation: 'OWASP',
-                    additionalArguments: '--scan . --format XML'
+                    additionalArguments: '--scan . --format XML --format HTML',
+                    stopBuild: false
                 )
             }
         }
@@ -41,6 +42,8 @@ pipeline {
                 dependencyCheckPublisher(
                     pattern: '**/dependency-check-report.xml'
                 )
+
+                archiveArtifacts artifacts: '**/dependency-check-report.html', fingerprint: true
             }
         }
     }
