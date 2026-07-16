@@ -17,17 +17,13 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                sh '''
-                docker rm -f juice-shop || true
-                docker run -d --name juice-shop -p 3000:3000 juice-shop
-                '''
+                sh 'docker run -d --name juice-shop -p 3000:3000 juice-shop'
             }
         }
 
         stage('Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '--scan .',
-                                odcInstallation: 'DependencyCheck'
+                dependencyCheck additionalArguments: '--scan .', odcInstallation: 'OWASP'
             }
         }
 
